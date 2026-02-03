@@ -47,7 +47,7 @@ class DriveSubsystem(Subsystem):
             motorControllerType=SparkMax,
         )
 
-        self.frontRight = SwerveModule(
+        self.frontRight = SwerveModule_CANCoder(
             DriveConstants.kFrontRightDrivingCanId,
             DriveConstants.kFrontRightTurningCanId,
             DriveConstants.kFrontRightRotationOffset,
@@ -57,7 +57,7 @@ class DriveSubsystem(Subsystem):
             motorControllerType=SparkMax,
         )
 
-        self.backLeft = SwerveModule(
+        self.backLeft = SwerveModule_CANCoder(
             DriveConstants.kBackLeftDrivingCanId,
             DriveConstants.kBackLeftTurningCanId,
             DriveConstants.kBackLeftRotationOffset,
@@ -67,7 +67,7 @@ class DriveSubsystem(Subsystem):
             motorControllerType=SparkMax,
         )
 
-        self.backRight = SwerveModule(
+        self.backRight = SwerveModule_CANCoder(
             DriveConstants.kBackRightDrivingCanId,
             DriveConstants.kBackRightTurningCanId,
             DriveConstants.kBackRightRotationOffset,
