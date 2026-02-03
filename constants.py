@@ -207,6 +207,18 @@ class PoseBoundariesConstants:
     y_max = 8
 
 
+class ShooterConstants:
+    shooter_SparkmaxID = 15
+    shooter_P = 0.06
+    shooter_I = 0.0004
+    shooter_D = 0.003
+    shooter_F = 0.19
+    robot_height = 0.508
+    hub_ht = 1.8288
+    launch_angle = 65
+    wheel_circumference = 0.1016*math.pi
+
+
 def in_field(pose: Pose2d):
     # Given a pose checks if that pose is on the field
     if pose.x < PoseBoundariesConstants.x_min or pose.x > PoseBoundariesConstants.x_max:
