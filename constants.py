@@ -13,7 +13,7 @@ import math
 from wpimath import units
 from wpimath.geometry import Translation2d, Pose2d
 from wpimath.kinematics import SwerveDrive4Kinematics
-from rev import SparkBase, SparkBaseConfig, ClosedLoopConfig
+from rev import SparkBase, SparkBaseConfig, FeedbackSensor
 
 
 class NeoMotorConstants:
@@ -47,25 +47,25 @@ class DriveConstants:
 
 
     # IDs and Offsets for each Swerve Module
-    kFrontLeftDrivingCanId = 11
+    kFrontLeftDrivingCanId = 13
     kFrontLeftTurningCanId = 12
-    kFrontLeftCANCoderID = 13
-    kFrontLeftRotationOffset = 200.92
+    kFrontLeftCANCoderID = 14
+    kFrontLeftRotationOffset = 301
 
-    kFrontRightDrivingCanId = 21
-    kFrontRightTurningCanId = 22
-    kFrontRightCANCoderID = None
-    kFrontRightRotationOffset = 0
+    kFrontRightDrivingCanId = 9
+    kFrontRightTurningCanId = 10
+    kFrontRightCANCoderID = 11
+    kFrontRightRotationOffset = 262
 
-    kBackLeftDrivingCanId = 31
-    kBackLeftTurningCanId = 32
-    kBackLeftCANCoderID = None
-    kBackLeftRotationOffset = 0
+    kBackLeftDrivingCanId = 3
+    kBackLeftTurningCanId = 4
+    kBackLeftCANCoderID = 5
+    kBackLeftRotationOffset = 167
 
-    kBackRightDrivingCanId = 41
-    kBackRightTurningCanId = 42
-    kBackRightCANCoderID = None
-    kBackRightRotationOffset = 0
+    kBackRightDrivingCanId = 6
+    kBackRightTurningCanId = 7
+    kBackRightCANCoderID = 8
+    kBackRightRotationOffset = 240
 
     # Whether the gyro should be reversed
     kGyroReversed = -1  # can be +1 if not flipped (affects field-relative driving)
@@ -81,7 +81,7 @@ def getSwerveDrivingMotorConfig(drivingMotorInverted: bool) -> SparkBaseConfig:
     drivingConfig.smartCurrentLimit(ModuleConstants.kDrivingMotorCurrentLimit)
     drivingConfig.encoder.positionConversionFactor(ModuleConstants.kDrivingEncoderPositionFactor)
     drivingConfig.encoder.velocityConversionFactor(ModuleConstants.kDrivingEncoderVelocityFactor)
-    drivingConfig.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
+    drivingConfig.closedLoop.setFeedbackSensor(FeedbackSensor.kPrimaryEncoder)
     drivingConfig.closedLoop.pid(ModuleConstants.kDrivingP, ModuleConstants.kDrivingI, ModuleConstants.kDrivingD)
     drivingConfig.closedLoop.velocityFF(ModuleConstants.kDrivingFF)
     drivingConfig.closedLoop.outputRange(ModuleConstants.kDrivingMinOutput, ModuleConstants.kDrivingMaxOutput)
@@ -101,10 +101,15 @@ def getSwerveTurningMotorConfig(turnMotorInverted: bool, encoderInverted: bool, 
     turningConfig.absoluteEncoder.inverted(encoderInverted)
     turningConfig.encoder.positionConversionFactor(ModuleConstants.kTurningAbsEncoderPositionFactor)
     turningConfig.encoder.velocityConversionFactor(ModuleConstants.kTurningAbsEncoderVelocityFactor)
+    # if abs_enc:
+    #     turningConfig.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+    # else:
+    #     turningConfig.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
+
     if abs_enc:
-        turningConfig.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kAbsoluteEncoder)
+        turningConfig.closedLoop.setFeedbackSensor(FeedbackSensor.kAbsoluteEncoder)
     else:
-        turningConfig.closedLoop.setFeedbackSensor(ClosedLoopConfig.FeedbackSensor.kPrimaryEncoder)
+        turningConfig.closedLoop.setFeedbackSensor(FeedbackSensor.kPrimaryEncoder)
     turningConfig.closedLoop.pid(ModuleConstants.kTurningP, ModuleConstants.kTurningI, ModuleConstants.kTurningD)
     turningConfig.closedLoop.velocityFF(ModuleConstants.kTurningFF)
     turningConfig.closedLoop.outputRange(ModuleConstants.kTurningMinOutput, ModuleConstants.kTurningMaxOutput)
@@ -208,13 +213,14 @@ class PoseBoundariesConstants:
 
 
 class ShooterConstants:
-    shooter_SparkmaxID = 15
+    Shooting_Motor_CAN_ID = 15
+    Shooting_Motor_Inverted = False
     shooter_P = 0.06
     shooter_I = 0.0004
     shooter_D = 0.003
     shooter_F = 0.19
     robot_height = 0.508
-    hub_ht = 1.8288
+    hub_height = 1.8288
     launch_angle = 65
     wheel_circumference = 0.1016*math.pi
 

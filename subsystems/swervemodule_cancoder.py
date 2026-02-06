@@ -4,7 +4,7 @@ from wpimath.geometry import Rotation2d
 
 from constants import getSwerveTurningMotorConfig
 from subsystems.swervemodule import SwerveModule
-from rev import SparkMax, SparkBase
+from rev import SparkMax, ResetMode, PersistMode
 from phoenix6.hardware import CANcoder
 
 class SwerveModule_CANCoder(SwerveModule):
@@ -28,8 +28,8 @@ class SwerveModule_CANCoder(SwerveModule):
         # reconfigures the turning motor controller
         self.turningSparkMax.configure(
             getSwerveTurningMotorConfig(turnMotorInverted, encoderInverted, abs_enc=False),
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters)
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters)
 
         # Creates the turning PID controller
         self.turningPIDController = self.turningSparkMax.getClosedLoopController()

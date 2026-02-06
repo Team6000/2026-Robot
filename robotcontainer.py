@@ -4,7 +4,7 @@ import commands2
 import typing
 
 from wpimath.geometry import Pose2d, Rotation2d
-from commands2 import RunCommand, ScheduleCommand, CommandScheduler
+from commands2 import RunCommand, CommandScheduler
 from commands2.button import CommandGenericHID
 from wpilib import XboxController, SmartDashboard
 
@@ -84,7 +84,7 @@ class RobotContainer:
         # When you let go cancel the command
         aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
 
-        # while I hold b aim to the given direction
+        # while I hold b aim to the given direction-
         bButton = self.driverController.button(XboxController.Button.kB)
         aim_to_direction = AimToDirection(50.0, self.robotDrive)
         bButton.whileTrue(aim_to_direction)

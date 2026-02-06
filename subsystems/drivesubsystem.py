@@ -17,7 +17,6 @@ from wpilib import SmartDashboard, Field2d, DriverStation
 from constants import DriveConstants, ModuleConstants
 import swerveutils
 from subsystems.swervemodule_cancoder import SwerveModule_CANCoder
-from subsystems.swervemodule import SwerveModule
 from rev import SparkMax
 import navx
 from pathplannerlib.auto import AutoBuilder
@@ -26,12 +25,13 @@ from pathplannerlib.config import RobotConfig, PIDConstants
 
 
 class DriveSubsystem(Subsystem):
-    def __init__(self, maxSpeedScaleFactor=None) -> None:
+    def __init__(self, maxSpeedScaleFactor: float | None = None) -> None:
         super().__init__()
 
         # Makes sure that if a maxSpeedScaleFactor is given it is callable
-        if maxSpeedScaleFactor is not None:
-            assert callable(maxSpeedScaleFactor)
+        # if maxSpeedScaleFactor is not None:
+        #     assert callable(maxSpeedScaleFactor)
+        #HARD CODING A NUMBER FOR MAX SPEED
 
         self.maxSpeedScaleFactor = maxSpeedScaleFactor
 
@@ -51,6 +51,7 @@ class DriveSubsystem(Subsystem):
             DriveConstants.kFrontRightDrivingCanId,
             DriveConstants.kFrontRightTurningCanId,
             DriveConstants.kFrontRightRotationOffset,
+            DriveConstants.kFrontRightCANCoderID,
             turnMotorInverted=ModuleConstants.kfrontRight_turn_inverted,
             driveMotorInverted=ModuleConstants.kfrontRight_drive_inverted,
             encoderInverted=ModuleConstants.kfrontRight_encoder_inverted,
@@ -61,6 +62,7 @@ class DriveSubsystem(Subsystem):
             DriveConstants.kBackLeftDrivingCanId,
             DriveConstants.kBackLeftTurningCanId,
             DriveConstants.kBackLeftRotationOffset,
+            DriveConstants.kBackLeftCANCoderID,
             turnMotorInverted=ModuleConstants.kbackLeft_turn_inverted,
             driveMotorInverted=ModuleConstants.kbackLeft_drive_inverted,
             encoderInverted=ModuleConstants.kbackLeft_encoder_inverted,
@@ -71,6 +73,7 @@ class DriveSubsystem(Subsystem):
             DriveConstants.kBackRightDrivingCanId,
             DriveConstants.kBackRightTurningCanId,
             DriveConstants.kBackRightRotationOffset,
+            DriveConstants.kBackRightCANCoderID,
             turnMotorInverted=ModuleConstants.kbackRight_turn_inverted,
             driveMotorInverted=ModuleConstants.kbackRight_drive_inverted,
             encoderInverted=ModuleConstants.kbackRight_encoder_inverted,
@@ -290,7 +293,8 @@ class DriveSubsystem(Subsystem):
         if (xSpeed != 0 or ySpeed != 0) and self.maxSpeedScaleFactor is not None:
             # If maxSpeedScaleFactor is set then it uses it.
             norm = math.sqrt(xSpeed * xSpeed + ySpeed * ySpeed)
-            scale = abs(self.maxSpeedScaleFactor() / norm)
+            scale = abs(self.maxSpeedScaleFactor / norm)
+            #TODO: Figure out max speed scale factor issue
             if scale < 1:
                 xSpeed = xSpeed * scale
                 ySpeed = ySpeed * scale

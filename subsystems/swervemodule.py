@@ -1,8 +1,7 @@
-from rev import SparkMax, SparkLowLevel, SparkBase
+from rev import SparkMax, SparkLowLevel, ResetMode, PersistMode
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState, SwerveModulePosition
 import math
-
 from constants import ModuleConstants, getSwerveDrivingMotorConfig, getSwerveTurningMotorConfig
 
 
@@ -37,13 +36,13 @@ class SwerveModule:
         # Configures the SparkMax according to their config in the constants file
         self.drivingSparkMax.configure(
             getSwerveDrivingMotorConfig(driveMotorInverted),
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters)
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters)
 
         self.turningSparkMax.configure(
             getSwerveTurningMotorConfig(turnMotorInverted, encoderInverted),
-            SparkBase.ResetMode.kResetSafeParameters,
-            SparkBase.PersistMode.kPersistParameters)
+            ResetMode.kResetSafeParameters,
+            PersistMode.kPersistParameters)
 
         # Setup encoders
         self.drivingEncoder = self.drivingSparkMax.getEncoder()
