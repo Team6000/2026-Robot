@@ -168,6 +168,11 @@ class DriveSubsystem(Subsystem):
         SmartDashboard.putNumber("bl", (self.backLeft.turningEncoder.getPosition() * -180 / math.pi))
         SmartDashboard.putNumber("br", (self.backRight.turningEncoder.getPosition() * -180 / math.pi))
 
+        SmartDashboard.putNumber("fl abs", (self.frontLeft.turning_AbsEncoder.get_absolute_position().value*-360))
+        SmartDashboard.putNumber("fr abs", (self.frontRight.turning_AbsEncoder.get_absolute_position().value*-360))
+        SmartDashboard.putNumber("bl abs", (self.backLeft.turning_AbsEncoder.get_absolute_position().value*-360))
+        SmartDashboard.putNumber("br abs", (self.backRight.turning_AbsEncoder.get_absolute_position().value*-360))
+
         self.field.setRobotPose(pose) # Sets the position of the robot on the field to the pose
 
         current_command = self.getCurrentCommand() # If there is a command running add it to the Dashboard

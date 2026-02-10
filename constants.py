@@ -50,22 +50,22 @@ class DriveConstants:
     kFrontLeftDrivingCanId = 13
     kFrontLeftTurningCanId = 12
     kFrontLeftCANCoderID = 14
-    kFrontLeftRotationOffset = 301
+    kFrontLeftRotationOffset = 0
 
     kFrontRightDrivingCanId = 9
     kFrontRightTurningCanId = 10
     kFrontRightCANCoderID = 11
-    kFrontRightRotationOffset = 262
+    kFrontRightRotationOffset = 0
 
     kBackLeftDrivingCanId = 3
     kBackLeftTurningCanId = 4
     kBackLeftCANCoderID = 5
-    kBackLeftRotationOffset = 167
+    kBackLeftRotationOffset = 0
 
     kBackRightDrivingCanId = 6
     kBackRightTurningCanId = 7
     kBackRightCANCoderID = 8
-    kBackRightRotationOffset = 240
+    kBackRightRotationOffset = 0
 
     # Whether the gyro should be reversed
     kGyroReversed = -1  # can be +1 if not flipped (affects field-relative driving)
@@ -124,15 +124,15 @@ class ModuleConstants:
     # Whether the motors are inverted
     kfrontLeft_drive_inverted = False
     kfrontLeft_turn_inverted = True
-    kfrontRight_drive_inverted = False
+    kfrontRight_drive_inverted = True
     kfrontRight_turn_inverted = True
     kbackLeft_drive_inverted = False
     kbackLeft_turn_inverted = True
-    kbackRight_drive_inverted = False
+    kbackRight_drive_inverted = True
     kbackRight_turn_inverted = True
 
     # If the encoders are inverted
-    kfrontLeft_encoder_inverted = False
+    kfrontLeft_encoder_inverted = True
     kfrontRight_encoder_inverted = True
     kbackLeft_encoder_inverted = True
     kbackRight_encoder_inverted = True
