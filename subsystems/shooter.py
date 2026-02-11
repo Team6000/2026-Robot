@@ -48,6 +48,8 @@ class Shooter(Subsystem):
         Compute required wheel RPM to hit a target at horizontal distance pos_x.
         Uses simple projectile motion physics.
         """
+        # TODO: CHANGE TO DISTANCE FORMULA FOR POSE
+
         # Avoid division by zero
         if pos_x == 0:
             self.target_rpm = 0.0
@@ -81,6 +83,11 @@ class Shooter(Subsystem):
         """
         self.target_rpm = 0.0
         self.controller.setSetpoint(0.0, SparkLowLevel.ControlType.kVelocity)
+
+    def runCalculatedShooterSpeed(self, pos_x: float):
+        self.calculateShooterSpeed(pos_x)
+        self.controller.setSetpoint(self.target_rpm, SparkLowLevel.ControlType.kVelocity)
+
 
     def execute(self):
         """

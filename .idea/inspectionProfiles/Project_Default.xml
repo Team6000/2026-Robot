@@ -15,6 +15,7 @@
           <option value="rev" />
           <option value="wpilib" />
           <option value="phoenix6" />
+          <option value="ntcore" />
         </list>
       </option>
     </inspection_tool>

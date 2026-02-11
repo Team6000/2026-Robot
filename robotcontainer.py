@@ -3,8 +3,8 @@ from __future__ import annotations
 import commands2
 import typing
 
-from wpimath.geometry import Pose2d, Rotation2d
-from commands2 import RunCommand, CommandScheduler
+from wpimath.geometry import Pose2d, Rotation2d, Translation3d
+from commands2 import RunCommand
 from commands2.button import CommandGenericHID
 from wpilib import XboxController, SmartDashboard
 
@@ -18,6 +18,10 @@ from commands.fancy_driving.pathplanner_to_pose import PathToPose
 from commands.fancy_driving.pathplanner_to_path import PathToPath
 from commands.swervedrive import SwerveDrive
 
+from subsystems.limelight_camera import LimelightCamera
+from subsystems.limelight_localizer import LimelightLocalizer
+from subsystems.shooter import Shooter
+
 
 class RobotContainer:
     """
@@ -30,6 +34,21 @@ class RobotContainer:
     def __init__(self, robot) -> None:
         # The robot's subsystems
         self.robotDrive = DriveSubsystem()
+
+        self.shooter = Shooter()
+
+        # Limelight:
+        self.limelightLocalizer = LimelightLocalizer(self.robotDrive)
+
+        self.LimelightFront = LimelightCamera("limelight-center")
+
+        self.limelightLocalizer.addCamera(
+           self.LimelightFront,
+           cameraPoseOnRobot=Translation3d(x=0.42, y=-0.32, z=0.5),
+           cameraHeadingOnRobot=Rotation2d.fromDegrees(0.0),
+           cameraPitchAngleDegrees=30
+        )
+
 
         # Creates 2 commands
         self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
@@ -75,14 +94,18 @@ class RobotContainer:
 
         # When you press the right bumper set the wheels to x formation
         rbButton = self.driverController.button(XboxController.Button.kRightBumper)
-        rbButton.onTrue(RunCommand(self.robotDrive.setX, self.robotDrive))
+        rbButton.whileTrue(RunCommand(self.robotDrive.setX, self.robotDrive))
 
-        # When you hold a: run the PathToPose or PathToPath command depending on what I have
+
+        # # When you hold a: run the PathToPose or PathToPath command depending on what I have
         aButton = self.driverController.button(XboxController.Button.kA)
-        aButton.onTrue(self.PathToPose)
-        #aButton.onTrue(self.PathToPath)
-        # When you let go cancel the command
-        aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
+        # aButton.onTrue(self.PathToPose)
+        # #aButton.onTrue(self.PathToPath)
+        # # When you let go cancel the command
+        # aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
+
+        aButton.whileTrue(RunCommand(self.shooter.runCalculatedShooterSpeed(5), self.shooter))
+
 
         # while I hold b aim to the given direction-
         bButton = self.driverController.button(XboxController.Button.kB)
