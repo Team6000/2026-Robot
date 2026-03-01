@@ -104,13 +104,15 @@ class RobotContainer:
         # # When you let go cancel the command
         # aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
 
-        aButton.whileTrue(RunCommand(self.shooter.runCalculatedShooterSpeed(5), self.shooter))
+        aButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=True), self.shooter))
 
 
         # while I hold b aim to the given direction-
         bButton = self.driverController.button(XboxController.Button.kB)
-        aim_to_direction = AimToDirection(50.0, self.robotDrive)
-        bButton.whileTrue(aim_to_direction)
+        # aim_to_direction = AimToDirection(50.0, self.robotDrive)
+        # bButton.whileTrue(aim_to_direction)
+
+        bButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=False), self.shooter))
 
         # When left bumper is clicked drive forward (robot relative) at 0.1 speeds
         lbButton = self.driverController.button(XboxController.Button.kLeftBumper)

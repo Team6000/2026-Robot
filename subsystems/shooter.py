@@ -1,5 +1,7 @@
 import math
 from rev import SparkMax, SparkLowLevel, SparkBaseConfig, ResetMode, PersistMode
+from wpilib import SmartDashboard
+
 from constants import ShooterConstants
 from commands2 import Subsystem
 
@@ -43,15 +45,24 @@ class Shooter(Subsystem):
         # Target RPM
         self.target_rpm = 0.0
 
-    def calculateShooterSpeed(self, pos_x: float):
+        # SUPPORTING MOTOR ALL TEST CODE:
+        # Motor setup
+        self.supp_motor = SparkMax(
+            ShooterConstants.Supporting_Motor_CAN_ID,
+            SparkLowLevel.MotorType.kBrushless
+        )
+
+    def periodic(self) -> None:
+        SmartDashboard.putNumber("Shooter Velocity", (self.encoder.getVelocity()))
+
+    def calculateShooterSpeed(self, distance: float):
         """
-        Compute required wheel RPM to hit a target at horizontal distance pos_x.
+        Compute required wheel RPM to hit a target at a given distance.
         Uses simple projectile motion physics.
         """
-        # TODO: CHANGE TO DISTANCE FORMULA FOR POSE
 
         # Avoid division by zero
-        if pos_x == 0:
+        if distance == 0:
             self.target_rpm = 0.0
             return
 
@@ -61,14 +72,15 @@ class Shooter(Subsystem):
         wheel_circ = ShooterConstants.wheel_circumference
 
         # Calculate initial linear velocity
-        init_velocity = math.sqrt(
-            (9.8 * pos_x ** 2) /
+        init_velocity = math.sqrt(abs(
+            (9.8 * distance ** 2) /
             (2 * (math.cos(launch_angle) ** 2) *
-             (pos_x * math.tan(launch_angle) - (hub_height - robot_height)))
-        )
+             (distance * math.tan(launch_angle) - (hub_height - robot_height)))
+        ))
 
         # Convert linear velocity to wheel RPM
-        self.target_rpm = (init_velocity / wheel_circ) * 60
+        # self.target_rpm = (init_velocity / wheel_circ) * 60
+        self.target_rpm = 5 * 60
 
     def setShooterRPM(self, rpm: float):
         """
@@ -84,10 +96,13 @@ class Shooter(Subsystem):
         self.target_rpm = 0.0
         self.controller.setSetpoint(0.0, SparkLowLevel.ControlType.kVelocity)
 
-    def runCalculatedShooterSpeed(self, pos_x: float):
-        self.calculateShooterSpeed(pos_x)
-        self.controller.setSetpoint(self.target_rpm, SparkLowLevel.ControlType.kVelocity)
-
+    def runCalculatedShooterSpeed(self, distance: float, forward: bool):
+        self.calculateShooterSpeed(distance)
+        self.controller.setSetpoint(5000, SparkLowLevel.ControlType.kVelocity)
+        if forward:
+            self.supp_motor.set(0.2)
+        else:
+            self.supp_motor.set(-0.2)
 
     def execute(self):
         """

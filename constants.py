@@ -213,7 +213,8 @@ class PoseBoundariesConstants:
 
 
 class ShooterConstants:
-    Shooting_Motor_CAN_ID = 15
+    Shooting_Motor_CAN_ID = 60
+    Supporting_Motor_CAN_ID = 61
     Shooting_Motor_Inverted = False
     shooter_P = 0.06
     shooter_I = 0.0004
