@@ -47,24 +47,24 @@ class DriveConstants:
 
 
     # IDs and Offsets for each Swerve Module
-    kFrontLeftDrivingCanId = 13
-    kFrontLeftTurningCanId = 12
-    kFrontLeftCANCoderID = 14
+    kFrontLeftDrivingCanId = 21
+    kFrontLeftTurningCanId = 22
+    kFrontLeftCANCoderID = 23
     kFrontLeftRotationOffset = 0
 
-    kFrontRightDrivingCanId = 9
-    kFrontRightTurningCanId = 10
-    kFrontRightCANCoderID = 11
+    kFrontRightDrivingCanId = 11
+    kFrontRightTurningCanId = 12
+    kFrontRightCANCoderID = 13
     kFrontRightRotationOffset = 0
 
-    kBackLeftDrivingCanId = 3
-    kBackLeftTurningCanId = 4
-    kBackLeftCANCoderID = 5
+    kBackLeftDrivingCanId = 41
+    kBackLeftTurningCanId = 42
+    kBackLeftCANCoderID = 43
     kBackLeftRotationOffset = 0
 
-    kBackRightDrivingCanId = 6
-    kBackRightTurningCanId = 7
-    kBackRightCANCoderID = 8
+    kBackRightDrivingCanId = 31
+    kBackRightTurningCanId = 32
+    kBackRightCANCoderID = 33
     kBackRightRotationOffset = 0
 
     # Whether the gyro should be reversed
@@ -202,6 +202,8 @@ class OIConstants:
     # Constants for teh controller go here
     kDriverControllerPort = 0
     kDriveDeadband = 0.05
+    kSubsystemControllerPort = 1
+    kSubsystemDeadband = 0.05
 
 
 class PoseBoundariesConstants:
@@ -213,8 +215,8 @@ class PoseBoundariesConstants:
 
 
 class ShooterConstants:
-    Shooting_Motor_CAN_ID = 60
-    Supporting_Motor_CAN_ID = 61
+    Shooting_Motor_CAN_ID = 51
+    Indexer_Motor_CAN_ID = 52
     Shooting_Motor_Inverted = False
     shooter_P = 0.06
     shooter_I = 0.0004
@@ -224,7 +226,38 @@ class ShooterConstants:
     hub_height = 1.8288
     launch_angle = 65
     wheel_circumference = 0.1016*math.pi
+    Indexer_Motor_Inverted = False
+    shooter_index_CAN_ID = None
+    shooter_index_P = 0.05
+    shooter_index_I = 0.0
+    shooter_index_D = 0.0
+    shooter_index_F = 0.0
+    Indexer_motor_speed = 0.2
+    Index_Velocity = 10
+    Shooter_Velocity = 10
+    Pose_For_Shooter = None
 
+
+class HopperConstants:
+    Linear_Motor_CAN_ID = 62
+    Linear_Motor_Inverted = False
+    Roller_Motor_CAN_ID = 61
+    Roller_Motor_Inverted = False
+    linear_motor_P = 0.05
+    linear_motor_I = 0
+    linear_motor_D = 0
+    linear_motor_F = 0
+
+    roller_motor_P = 0.005
+    roller_motor_I = 0
+    roller_motor_D = 0
+    roller_motor_F = 0
+    extend_hopper_final_pos = 1
+    retract_hopper_final_pos = -32.8
+    linear_motor_max_speed = 0.15
+    linear_motor_min_speed = -0.15
+    inwards_spin_velocity = 12000
+    outwards_spin_velocity = -12000
 
 def in_field(pose: Pose2d):
     # Given a pose checks if that pose is on the field

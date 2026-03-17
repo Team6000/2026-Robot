@@ -4,11 +4,12 @@ import commands2
 import typing
 
 from wpimath.geometry import Pose2d, Rotation2d, Translation3d
-from commands2 import RunCommand
+from commands2 import RunCommand, CommandScheduler, InstantCommand
 from commands2.button import CommandGenericHID
 from wpilib import XboxController, SmartDashboard
 
 from constants import OIConstants
+from subsystems import hopper
 from subsystems.drivesubsystem import DriveSubsystem
 
 from commands.reset_xy import ResetXY, ResetSwerveFront
@@ -35,8 +36,8 @@ class RobotContainer:
         # The robot's subsystems
         self.robotDrive = DriveSubsystem()
 
+        self.hopper = hopper.Hopper()
         self.shooter = Shooter()
-
         # Limelight:
         self.limelightLocalizer = LimelightLocalizer(self.robotDrive)
 
@@ -57,6 +58,7 @@ class RobotContainer:
 
         # Creates the driver's controller
         self.driverController = CommandGenericHID(OIConstants.kDriverControllerPort)
+        self.subsystemController = CommandGenericHID(OIConstants.kSubsystemControllerPort)
 
         # Configure the button bindings and auto chooser
         self.configureButtonBindings()
@@ -79,12 +81,13 @@ class RobotContainer:
             )
         )
 
+
     def configureButtonBindings(self) -> None:
         """
         This function is used to set all the buttons to what they run
         """
 
-        # When x is clicked in resets the pose of the robot
+        # When x is clicked it resets the pose of the robot
         xButton = self.driverController.button(XboxController.Button.kX)
         xButton.onTrue(ResetXY(x=0.0, y=0.0, headingDegrees=0.0, drivetrain=self.robotDrive))
 
@@ -96,34 +99,53 @@ class RobotContainer:
         rbButton = self.driverController.button(XboxController.Button.kRightBumper)
         rbButton.whileTrue(RunCommand(self.robotDrive.setX, self.robotDrive))
 
-
         # # When you hold a: run the PathToPose or PathToPath command depending on what I have
         aButton = self.driverController.button(XboxController.Button.kA)
         # aButton.onTrue(self.PathToPose)
-        # #aButton.onTrue(self.PathToPath)
-        # # When you let go cancel the command
-        # aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
-
-        aButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=True), self.shooter))
-
+        # When you let go cancel the command
+        aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
 
         # while I hold b aim to the given direction-
         bButton = self.driverController.button(XboxController.Button.kB)
-        # aim_to_direction = AimToDirection(50.0, self.robotDrive)
-        # bButton.whileTrue(aim_to_direction)
-
-        bButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=False), self.shooter))
+        aim_to_direction = AimToDirection(50.0, self.robotDrive)
+        bButton.whileTrue(aim_to_direction)
 
         # When left bumper is clicked drive forward (robot relative) at 0.1 speeds
         lbButton = self.driverController.button(XboxController.Button.kLeftBumper)
         lbButton.whileTrue(RunCommand(lambda: self.robotDrive.ArcadeDrive(0.1,0), self.robotDrive))
 
+        aSubButton = self.subsystemController.button(XboxController.Button.kA)
+        aSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_outwards(), self.hopper))
+        aSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
 
+
+        bSubButton = self.subsystemController.button(XboxController.Button.kB)
+        bSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_inwards(), self.hopper))
+        bSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
+
+
+        xSubButton = self.subsystemController.button(XboxController.Button.kX)
+        xSubButton.whileTrue(RunCommand(lambda: self.hopper.extend_hopper(), self.hopper))
+        xSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_linear_motor(), self.hopper))
+
+        ySubButton = self.subsystemController.button(XboxController.Button.kY)
+        ySubButton.whileTrue(RunCommand(lambda: self.hopper.retract_hopper(), self.hopper))
+        ySubButton.onFalse(InstantCommand(lambda: self.hopper.stop_linear_motor(), self.hopper))
+
+
+        rbSubButton = self.subsystemController.button(XboxController.Button.kRightBumper)
+        rbSubButton.whileTrue(RunCommand(lambda: self.shooter.intake(), self.shooter))
+
+        #TODO: MAKE A COMMAND THAT'S CALLED SHOOT. IT AUTO AIMS TOWARDS THE HUB THEN WHEN ITS THERE SHOOTS. MAKE FULL COMMAND
+
+        # aButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=True), self.shooter))
+        # bButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=False), self.shooter))
 
 
     def disablePIDSubsystems(self) -> None:
         """Disables all ProfiledPIDSubsystem and PIDSubsystem instances.
         This should be called on robot disable to prevent integral windup."""
+
 
     def getAutonomousCommand(self) -> commands2.Command:
         """
