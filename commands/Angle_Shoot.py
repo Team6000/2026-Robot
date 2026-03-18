@@ -1,9 +1,9 @@
 
 import math
 import commands2
-
+from subsystems import shooter
 from commands.fancy_driving.manual_aimtodirection import AimToDirection
-
+#TODO: Make a command with a button tied to it
 
 class AngleShoot(commands2.Command):
     """
@@ -11,12 +11,11 @@ class AngleShoot(commands2.Command):
     robot angle and shooter angle for scoring.
     """
 
-    def __init__(self, drivetrain, shooter):
+    def __init__(self, drivetrain):
         super().__init__()
 
         self.drivetrain = drivetrain
-        self.shooter = shooter
-
+        self.shooter = shooter.Shooter()
         self.addRequirements(drivetrain) #this cancels the other commands and makes sure that it does this
 
         # Speaker position on field (CHANGE if needed)
@@ -25,7 +24,6 @@ class AngleShoot(commands2.Command):
 
         self.distance = 0
         self.shooter_angle = 0
-
         self.aimCommand = None
 
     # LIMELIGHT POSE FUNCTIONS
@@ -60,51 +58,25 @@ class AngleShoot(commands2.Command):
 
         return angle
 
-    # -----------------------------
-    # SHOOTER ANGLE CALCULATION
-    # -----------------------------
-
-    def calculateShooterAngle(self):
-        """
-        Converts distance to shooter angle.
-        Adjust these numbers based on testing.
-        """
-
-        distance = self.getDistance()
-
-        if distance < 2:
-            self.shooter_angle = 30
-        elif distance < 4:
-            self.shooter_angle = 40
-        elif distance < 6:
-            self.shooter_angle = 50
-        else:
-            self.shooter_angle = 55
-
-        return self.shooter_angle
-
-    # -----------------------------
-    # COMMAND FUNCTIONS
-    # -----------------------------
-
     def initialize(self):
 
         # Create AimToDirection command using calculated angle
         self.aimCommand = AimToDirection(
-            self.getTargetAngle,
+            self.getTargetAngle(),
             self.drivetrain
         )
 
         self.aimCommand.initialize()
 
-        # Calculate shooter angle
-        shooter_angle = self.calculateShooterAngle()
-
-        # Send angle to shooter subsystem
-        self.shooter.setAngle(shooter_angle)
+    def At_Target_Angle(self):
+        return self.drivetrain.getPoseHeading() - self.getTargetAngle() > .5
 
     def execute(self):
         self.aimCommand.execute()
+
+        if self.At_Target_Angle():
+            self.shooter.runCalculatedShooterSpeed(self.getDistance())
+
 
     def end(self, interrupted):
         self.aimCommand.end(interrupted)

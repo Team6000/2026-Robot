@@ -4,7 +4,7 @@ from wpilib import SmartDashboard
 
 from constants import ShooterConstants
 from commands2 import Subsystem
-
+import hopper
 
 """
 Add to shooter: the indexing
@@ -19,7 +19,7 @@ class Shooter(Subsystem):
         PID/FF are configured in SparkBaseConfig for closed-loop velocity control.
         """
         super().__init__()
-
+        self.hopper = hopper.Hopper()
         self.shooter_motor = SparkMax(
             ShooterConstants.Shooting_Motor_CAN_ID,
             SparkLowLevel.MotorType.kBrushless
@@ -40,7 +40,7 @@ class Shooter(Subsystem):
             PersistMode.kPersistParameters
         )
 
-        self.target_rpm = 10
+        self.target_rpm = 0
         self.shooter_pid = self.shooter_motor.getClosedLoopController()
         self.shooter_encoder = self.shooter_motor.getEncoder()
 
@@ -76,7 +76,7 @@ class Shooter(Subsystem):
         Compute required wheel RPM to hit a target at a given distance.
         Uses simple projectile motion physics.
         """
-        pass
+        pass #TODO: BASED ON TABLE
 
     def setShooterRPM(self, rpm: float):
         """
@@ -92,8 +92,8 @@ class Shooter(Subsystem):
         self.indexer_motor.set(ShooterConstants.Indexer_motor_speed)
 
     def intake(self):
-        self.shooter_pid.setReference(ShooterConstants.Index_Velocity, SparkLowLevel.ControlType.kVelocity) #TODO: Figure out which motors to use here. Pos or neg value!
-        self.indexer_pid.setReference(ShooterConstants.Shooter_Velocity, SparkLowLevel.ControlType.kVelocity)
+        self.indexer_pid.setReference(4000, SparkLowLevel.ControlType.kVelocity)
+        self.hopper.hopper_motor_spin_inwards()
 
 
     def stop(self):

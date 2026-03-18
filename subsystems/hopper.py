@@ -28,11 +28,11 @@ class Hopper(Subsystem):
 
         self.roller_pid = self.roller_motor.getClosedLoopController()
 
+        self.roller_encoder = self.roller_motor.getEncoder()
+
         self.linear_motor = SparkMax(
             HopperConstants.Linear_Motor_CAN_ID,
-            SparkLowLevel.MotorType.kBrushless,
-            HopperConstants.linear_motor_min_speed,
-            HopperConstants.linear_motor_max_speed
+            SparkLowLevel.MotorType.kBrushless
         )
         self.linear_motor.setInverted(HopperConstants.Linear_Motor_Inverted)
 
@@ -44,6 +44,11 @@ class Hopper(Subsystem):
         )
         linear_motor_config.closedLoop.velocityFF(HopperConstants.linear_motor_F)
 
+        linear_motor_config.closedLoop.outputRange(
+            HopperConstants.linear_motor_min_speed,
+            HopperConstants.linear_motor_max_speed
+        )
+
         self.linear_motor.configure(
             linear_motor_config,
             ResetMode.kResetSafeParameters,
@@ -51,8 +56,6 @@ class Hopper(Subsystem):
         )
 
         self.linear_pid = self.linear_motor.getClosedLoopController()
-        self.linear_pid.SetOutputRange(HopperConstants.linear_motor_min_speed, HopperConstants.linear_motor_max_speed)
-
 
         self.linear_encoder = self.linear_motor.getEncoder()
 
@@ -65,8 +68,12 @@ class Hopper(Subsystem):
         self.linear_pid.setReference(HopperConstants.retract_hopper_final_pos, SparkMax.ControlType.kPosition)
 
     def periodic(self) -> None:
+        # Linear Position
         position = self.get_position()
         SmartDashboard.putNumber("Hopper Position", position)
+
+        velocity = self.roller_encoder.getVelocity()
+        SmartDashboard.putNumber("Hopper Velocity", velocity)
 
     def hopper_motor_spin_inwards(self):
         self.roller_pid.setReference(HopperConstants.inwards_spin_velocity, SparkMax.ControlType.kVelocity)
@@ -78,7 +85,7 @@ class Hopper(Subsystem):
         return self.linear_encoder.getPosition()
 
     def stop_linear_motor(self):
-        self.linear_pid.setSetpoint(0, SparkMax.ControlType.kVelocity)
+        self.linear_motor.stopMotor()
 
     def stop_rolling_motor(self):
-        self.roller_pid.setSetpoint(0, SparkMax.ControlType.kVelocity)
+        self.roller_motor.stopMotor()

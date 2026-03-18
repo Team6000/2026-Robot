@@ -218,10 +218,10 @@ class ShooterConstants:
     Shooting_Motor_CAN_ID = 51
     Indexer_Motor_CAN_ID = 52
     Shooting_Motor_Inverted = False
-    shooter_P = 0.06
-    shooter_I = 0.0004
-    shooter_D = 0.003
-    shooter_F = 0.19
+    shooter_P = 0.001
+    shooter_I = 0
+    shooter_D = 0
+    shooter_F = 0
     robot_height = 0.508
     hub_height = 1.8288
     launch_angle = 65
@@ -248,12 +248,12 @@ class HopperConstants:
     linear_motor_D = 0
     linear_motor_F = 0
 
-    roller_motor_P = 0.005
+    roller_motor_P = 0.0005
     roller_motor_I = 0
     roller_motor_D = 0
     roller_motor_F = 0
-    extend_hopper_final_pos = 1
-    retract_hopper_final_pos = -32.8
+    extend_hopper_final_pos = -36.8
+    retract_hopper_final_pos = 1
     linear_motor_max_speed = 0.15
     linear_motor_min_speed = -0.15
     inwards_spin_velocity = 12000
