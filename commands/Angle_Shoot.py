@@ -1,9 +1,8 @@
 
 import math
 import commands2
-from subsystems import shooter
+from wpilib import SmartDashboard
 from commands.fancy_driving.manual_aimtodirection import AimToDirection
-#TODO: Make a command with a button tied to it
 
 class AngleShoot(commands2.Command):
     """
@@ -11,22 +10,31 @@ class AngleShoot(commands2.Command):
     robot angle and shooter angle for scoring.
     """
 
-    def __init__(self, drivetrain):
+    def __init__(self, drivetrain, hopper, shooter):
         super().__init__()
 
         self.drivetrain = drivetrain
-        self.shooter = shooter.Shooter()
-        self.addRequirements(drivetrain) #this cancels the other commands and makes sure that it does this
+        self.hopper = hopper
+        self.shooter = shooter
+        self.addRequirements(drivetrain, hopper, shooter) #this cancels the other commands and makes sure that it does this
 
-        # Speaker position on field (CHANGE if needed)
-        self.target_x = 16.54 #For blue, x=0
-        self.target_y = 5.55
+        team = "Red"
+        # Function to get team:
+        if team == "Red":
+            self.target_x = 16.54
+            self.target_y = 5.5
+        else:
+            self.target_x = 0
+            self.target_y = 5.5
 
         self.distance = 0
         self.shooter_angle = 0
         self.aimCommand = None
 
-    # LIMELIGHT POSE FUNCTIONS
+    def periodic(self):
+        SmartDashboard.putNumber("Distance to Hub", self.getDistance())
+        SmartDashboard.putNumber("Shooter Angle", self.getTargetAngle())
+
 
     def getDistance(self):
         """Calculate distance from robot to target"""
@@ -68,18 +76,19 @@ class AngleShoot(commands2.Command):
 
         self.aimCommand.initialize()
 
-    def At_Target_Angle(self):
+    def at_Target_Angle(self):
         return self.drivetrain.getPoseHeading() - self.getTargetAngle() > .5
 
     def execute(self):
         self.aimCommand.execute()
 
-        if self.At_Target_Angle():
+        if self.at_Target_Angle():
             self.shooter.runCalculatedShooterSpeed(self.getDistance())
 
 
     def end(self, interrupted):
         self.aimCommand.end(interrupted)
+        self.shooter.stop()
 
     def isFinished(self):
         return self.aimCommand.isFinished()

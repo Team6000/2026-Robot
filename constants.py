@@ -217,24 +217,19 @@ class ShooterConstants:
     Shooting_Motor_CAN_ID = 51
     Indexer_Motor_CAN_ID = 52
     Shooting_Motor_Inverted = False
-    shooter_P = 0.001
+    shooter_P = 0.0001
     shooter_I = 0
     shooter_D = 0
-    shooter_F = 0
-    robot_height = 0.508
-    hub_height = 1.8288
-    launch_angle = 65
-    wheel_circumference = 0.1016*math.pi
+    shooter_F = 0.0002
     Indexer_Motor_Inverted = False
-    shooter_index_CAN_ID = None
-    shooter_index_P = 0.05
+    shooter_index_P = 0.0001
     shooter_index_I = 0.0
     shooter_index_D = 0.0
-    shooter_index_F = 0.0
-    Indexer_motor_speed = 0.2
-    Index_Velocity = 10
-    Shooter_Velocity = 10
-    Pose_For_Shooter = None
+    shooter_index_F = 0.0002
+    intake_index_velocity = 5000
+    shooting_index_velocity = -5000
+    intake_shooter_velocity = 2000
+    shooting_shooter_velocity = 4000
 
 
 class HopperConstants:

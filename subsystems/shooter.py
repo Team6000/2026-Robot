@@ -4,7 +4,6 @@ from wpilib import SmartDashboard
 
 from constants import ShooterConstants
 from commands2 import Subsystem
-import hopper
 import LookupTable
 
 
@@ -21,7 +20,6 @@ class Shooter(Subsystem):
         PID/FF are configured in SparkBaseConfig for closed-loop velocity control.
         """
         super().__init__()
-        self.hopper = hopper.Hopper()
         self.shooter_motor = SparkMax(
             ShooterConstants.Shooting_Motor_CAN_ID,
             SparkLowLevel.MotorType.kBrushless
@@ -54,7 +52,7 @@ class Shooter(Subsystem):
 
         indexer_motor_config = SparkBaseConfig()
         indexer_motor_config.closedLoop.pid(
-            ShooterConstants.shooter_index_F,
+            ShooterConstants.shooter_index_P,
             ShooterConstants.shooter_index_I,
             ShooterConstants.shooter_index_D,
         )
@@ -80,14 +78,15 @@ class Shooter(Subsystem):
         """
 
         # Lookup RPM from table (automatically interpolates between points)
-        RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable({
-        1.0: 2000,  # if distance is 1m, spin at 2000 rpm
-        2.0: 3000,  # if distance is 2m, spin at 3000 rpm
-        12.0: 6000,  # if distance is 12m, spin at 6000 rpm
-            })
+        # RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable({
+        # 1.0: 2000,  # if distance is 1m, spin at 2000 rpm
+        # 2.0: 3000,  # if distance is 2m, spin at 3000 rpm
+        # 12.0: 6000,  # if distance is 12m, spin at 6000 rpm
+        #     })
     # TODO: why error???
 
-        rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
+        # rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
+        rpm = 4000
 
     # Set the target RPM
         self.target_rpm = rpm
@@ -102,14 +101,13 @@ class Shooter(Subsystem):
     def runCalculatedShooterSpeed(self, distance: float):
         self.calculateShooterSpeed(distance)
         self.shooter_pid.setSetpoint(self.target_rpm, SparkLowLevel.ControlType.kVelocity)
-        self.indexer_motor.set(ShooterConstants.Indexer_motor_speed)
+        self.indexer_motor.set(ShooterConstants.shooting_index_velocity)
 
     def intake(self):
-        self.indexer_pid.setReference(4000, SparkLowLevel.ControlType.kVelocity)
-        self.hopper.hopper_motor_spin_inwards()
-
+        self.indexer_pid.setReference(ShooterConstants.intake_index_velocity, SparkLowLevel.ControlType.kVelocity)
+        self.shooter_pid.setReference(ShooterConstants.intake_shooter_velocity, SparkLowLevel.ControlType.kVelocity)
 
     def stop(self):
         self.target_rpm = 0.0
-        self.shooter_pid.stop()
-        self.indexer_pid.stop()
+        self.shooter_motor.stopMotor()
+        self.indexer_motor.stopMotor()
