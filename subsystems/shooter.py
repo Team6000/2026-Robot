@@ -5,6 +5,8 @@ from wpilib import SmartDashboard
 from constants import ShooterConstants
 from commands2 import Subsystem
 import hopper
+import LookupTable
+
 
 """
 Add to shooter: the indexing
@@ -72,12 +74,23 @@ class Shooter(Subsystem):
         SmartDashboard.putNumber('Target RPM', self.target_rpm)
 
     def calculateShooterSpeed(self, distance: float):
-        """
-        Compute required wheel RPM to hit a target at a given distance.
-        Uses simple projectile motion physics.
-        """
-        pass #TODO: BASED ON TABLE
 
+        """
+        Set shooter RPM based on Epanov-style lookup table with interpolation.
+        """
+
+        # Lookup RPM from table (automatically interpolates between points)
+        RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable({
+        1.0: 2000,  # if distance is 1m, spin at 2000 rpm
+        2.0: 3000,  # if distance is 2m, spin at 3000 rpm
+        12.0: 6000,  # if distance is 12m, spin at 6000 rpm
+            })
+    # TODO: why error???
+
+        rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
+
+    # Set the target RPM
+        self.target_rpm = rpm
     def setShooterRPM(self, rpm: float):
         """
         Command the motor to a specific RPM using closed-loop velocity control.
