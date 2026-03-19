@@ -82,7 +82,7 @@ class AngleShoot(commands2.Command):
         # self.aimCommand.execute()
         # # TODO: ONLY RUN HOPPER WHEN SHOOTER AT SPEED
 
-        if self.at_Target_Angle():
+        if self.at_Target_Angle(): #TODO TEST WHY NOT WORKING
             self.shooter.runCalculatedShooterSpeed(self.getDistance())
             self.hopper.hopper_motor_spin_inwards()
 
