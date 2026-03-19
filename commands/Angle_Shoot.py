@@ -21,11 +21,11 @@ class AngleShoot(commands2.Command):
         team = "Red"
         # Function to get team:
         if team == "Red":
-            self.target_x = 16.54
-            self.target_y = 5.5
+            self.target_x = 11.913234
+            self.target_y = 4.021500
         else:
-            self.target_x = 0
-            self.target_y = 5.5
+            self.target_x = 4.604766
+            self.target_y = 4.021500
 
         self.distance = 0
         self.shooter_angle = 0
@@ -60,7 +60,9 @@ class AngleShoot(commands2.Command):
 
         angle = math.degrees(math.atan2(dy, dx))
 
-        return angle
+        reversed_angle = angle + 180 # Back of Robot
+
+        return reversed_angle
 
     def initialize(self):
 
@@ -73,16 +75,17 @@ class AngleShoot(commands2.Command):
         self.aimCommand.initialize()
 
     def at_Target_Angle(self):
-        return self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle() < 3
+        return abs(self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle()) < 5
 
     def execute(self):
         SmartDashboard.putNumber("Distance to Hub", self.getDistance())
-        SmartDashboard.putNumber("Shooter Angle", self.getTargetAngle())
+        SmartDashboard.putNumber("Shooter Target Angle", self.getTargetAngle())
         SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
-        # self.aimCommand.execute()
-        # # TODO: ONLY RUN HOPPER WHEN SHOOTER AT SPEED
+        SmartDashboard.putNumber("Distance Angle to Hub", abs(self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle()))
+        self.aimCommand.execute()
+        # TODO: ONLY RUN HOPPER WHEN SHOOTER AT SPEED
 
-        if self.at_Target_Angle(): #TODO TEST WHY NOT WORKING
+        if self.at_Target_Angle():
             self.shooter.runCalculatedShooterSpeed(self.getDistance())
             self.hopper.hopper_motor_spin_inwards()
 
@@ -91,6 +94,3 @@ class AngleShoot(commands2.Command):
         self.aimCommand.end(interrupted)
         self.shooter.stop()
         self.hopper.stop_rolling_motor()
-
-    # def isFinished(self):
-    #     return self.aimCommand.isFinished()

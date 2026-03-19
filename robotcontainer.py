@@ -143,8 +143,7 @@ class RobotContainer:
 
         # Intaking
         rbSubButton = self.subsystemController.button(XboxController.Button.kRightBumper)
-        rbSubButton.whileTrue(self.IntakeCommand.execute())
-        rbSubButton.onFalse(self.IntakeCommand.stop())
+        rbSubButton.whileTrue(self.IntakeCommand)
 
         # Shooting
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
