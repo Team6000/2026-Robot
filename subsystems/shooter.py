@@ -4,7 +4,7 @@ from wpilib import SmartDashboard
 
 from constants import ShooterConstants
 from commands2 import Subsystem
-import LookupTable
+from LookupTable import LookupTable
 
 
 """
@@ -78,18 +78,20 @@ class Shooter(Subsystem):
         """
 
         # Lookup RPM from table (automatically interpolates between points)
-        # RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable({
-        # 1.0: 2000,  # if distance is 1m, spin at 2000 rpm
-        # 2.0: 3000,  # if distance is 2m, spin at 3000 rpm
-        # 12.0: 6000,  # if distance is 12m, spin at 6000 rpm
-        #     })
-    # TODO: why error???
+        points = {
+            1.0: 2000,  # if distance is 1m, spin at 2000 rpm
+            2.0: 3000,  # if distance is 2m, spin at 3000 rpm
+            12.0: 6000,  # if distance is 12m, spin at 6000 rpm
+        }
+        RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable(points)
 
         # rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
         rpm = 4000
 
-    # Set the target RPM
+        # Set the target RPM
         self.target_rpm = rpm
+
+
     def setShooterRPM(self, rpm: float):
         """
         Command the motor to a specific RPM using closed-loop velocity control.
