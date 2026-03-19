@@ -205,7 +205,7 @@ class OIConstants:
     kSubsystemDeadband = 0.05
 
 
-class PoseBoundariesConstants:
+class PoseBoundariesConstants: #TODO
     # Boundaries of the field so the robot can calculate if it's on the field
     x_min = 0
     y_min = 0
@@ -229,7 +229,6 @@ class ShooterConstants:
     intake_index_velocity = 5000
     shooting_index_velocity = -5000
     intake_shooter_velocity = 2000
-    shooting_shooter_velocity = 4000
 
 
 class HopperConstants:

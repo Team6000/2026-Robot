@@ -43,21 +43,24 @@ class RobotContainer:
         # Limelight:
         self.limelightLocalizer = LimelightLocalizer(self.robotDrive)
 
-        self.LimelightFront = LimelightCamera("limelight-center")
+        self.Limelight = LimelightCamera("limelight")
 
-        self.limelightLocalizer.addCamera(
-           self.LimelightFront,
-           cameraPoseOnRobot=Translation3d(x=0.42, y=-0.32, z=0.5),
+        self.limelightLocalizer.addCamera( #TODO
+           self.Limelight,
+           cameraPoseOnRobot=Translation3d(x=0.1778, y=-0.2921, z=0.43),
            cameraHeadingOnRobot=Rotation2d.fromDegrees(0.0),
-           cameraPitchAngleDegrees=30
+           cameraPitchAngleDegrees=0
         )
 
 
         # Creates commands
-        self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
-        self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
+        #self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
+        #self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
         self.Angle_Shoot = AngleShoot(self.robotDrive, self.hopper, self.shooter)
         self.IntakeCommand = IntakeCommand(self.shooter, self.hopper)
+
+        self.Angle_Shoot.initialize()
+        self.IntakeCommand.initialize()
 
 
         # Creates the driver's controller
@@ -121,10 +124,8 @@ class RobotContainer:
 
         # Subsystem Controller
         aSubButton = self.subsystemController.button(XboxController.Button.kA)
-        # aSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_outwards(), self.hopper))
-        # aSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
-
-        aSubButton.whileTrue(self.Angle_Shoot)
+        aSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_outwards(), self.hopper))
+        aSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
 
         bSubButton = self.subsystemController.button(XboxController.Button.kB)
         bSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_inwards(), self.hopper))
@@ -147,8 +148,9 @@ class RobotContainer:
 
         # Shooting
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
-        lbSubButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(10), self.shooter))
-        lbSubButton.onFalse(InstantCommand(lambda: self.shooter.stop(), self.shooter))
+        lbSubButton.whileTrue(self.Angle_Shoot)
+        #lbSubButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(10), self.shooter))
+        #lbSubButton.onFalse(self.Angle_Shoot.end(True))
 
 
         #TODO: MAKE A COMMAND THAT'S CALLED SHOOT. IT AUTO AIMS TOWARDS THE HUB THEN WHEN ITS THERE SHOOTS. MAKE FULL COMMAND

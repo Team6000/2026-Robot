@@ -31,18 +31,14 @@ class AngleShoot(commands2.Command):
         self.shooter_angle = 0
         self.aimCommand = None
 
-    def periodic(self):
-        SmartDashboard.putNumber("Distance to Hub", self.getDistance())
-        SmartDashboard.putNumber("Shooter Angle", self.getTargetAngle())
-
 
     def getDistance(self):
         """Calculate distance from robot to target"""
 
         pose = self.drivetrain.getPose()
 
-        robot_x = pose[0]
-        robot_y = pose[1]
+        robot_x = pose.x
+        robot_y = pose.y
 
         dx = self.target_x - robot_x
         dy = self.target_y - robot_y
@@ -56,8 +52,8 @@ class AngleShoot(commands2.Command):
 
         pose = self.drivetrain.getPose()
 
-        robot_x = pose[0]
-        robot_y = pose[1]
+        robot_x = pose.x
+        robot_y = pose.y
 
         dx = self.target_x - robot_x
         dy = self.target_y - robot_y
@@ -77,18 +73,24 @@ class AngleShoot(commands2.Command):
         self.aimCommand.initialize()
 
     def at_Target_Angle(self):
-        return self.drivetrain.getPoseHeading() - self.getTargetAngle() > .5
+        return self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle() < 3
 
     def execute(self):
-        self.aimCommand.execute()
+        SmartDashboard.putNumber("Distance to Hub", self.getDistance())
+        SmartDashboard.putNumber("Shooter Angle", self.getTargetAngle())
+        SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
+        # self.aimCommand.execute()
+        # # TODO: ONLY RUN HOPPER WHEN SHOOTER AT SPEED
 
         if self.at_Target_Angle():
             self.shooter.runCalculatedShooterSpeed(self.getDistance())
+            self.hopper.hopper_motor_spin_inwards()
 
 
     def end(self, interrupted):
         self.aimCommand.end(interrupted)
         self.shooter.stop()
+        self.hopper.stop_rolling_motor()
 
-    def isFinished(self):
-        return self.aimCommand.isFinished()
+    # def isFinished(self):
+    #     return self.aimCommand.isFinished()

@@ -3,6 +3,7 @@ import typing
 import wpilib
 
 from commands2 import Subsystem
+from ntcore import NetworkTable
 from pathplannerlib.logging import PathPlannerLogging
 from wpimath.filter import SlewRateLimiter
 from wpimath.geometry import Pose2d, Rotation2d, Translation2d
@@ -173,7 +174,8 @@ class DriveSubsystem(Subsystem):
         SmartDashboard.putNumber("bl abs", (self.backLeft.turning_AbsEncoder.get_absolute_position().value*-360))
         SmartDashboard.putNumber("br abs", (self.backRight.turning_AbsEncoder.get_absolute_position().value*-360))
 
-        self.field.setRobotPose(pose) # Sets the position of the robot on the field to the pose
+        self.field.setRobotPose(pose)# Sets the position of the robot on the field to the pose
+
 
         current_command = self.getCurrentCommand() # If there is a command running add it to the Dashboard
         if current_command:
