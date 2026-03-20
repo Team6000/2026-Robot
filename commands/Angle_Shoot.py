@@ -1,96 +1,90 @@
-
 import math
 import commands2
 from wpilib import SmartDashboard
-from commands.fancy_driving.manual_aimtodirection import AimToDirection
+from commands.fancy_driving.aimtodirection_help import AimToDirectionHelper
+
 
 class AngleShoot(commands2.Command):
     """
-    Uses Limelight pose estimation to determine the correct
-    robot angle and shooter angle for scoring.
+    Drives + auto aims + shoots.
     """
 
-    def __init__(self, drivetrain, hopper, shooter):
+    def __init__(self, drivetrain, hopper, shooter, getX, getY, getRot):
         super().__init__()
 
         self.drivetrain = drivetrain
         self.hopper = hopper
         self.shooter = shooter
-        self.addRequirements(drivetrain, hopper, shooter) #this cancels the other commands and makes sure that it does this
 
-        team = "Red"
-        # Function to get team:
-        if team == "Red":
-            self.target_x = 11.913234
-            self.target_y = 4.021500
-        else:
-            self.target_x = 4.604766
-            self.target_y = 4.021500
+        self.getX = getX
+        self.getY = getY
+        self.getRot = getRot
 
-        self.distance = 0
-        self.shooter_angle = 0
-        self.aimCommand = None
+        # ✅ NOW we REQUIRE drivetrain again
+        self.addRequirements(drivetrain, hopper, shooter)
 
+        # Target position
+        self.target_x = 11.913234
+        self.target_y = 4.021500
+
+        # Aim helper
+        self.aimHelper = AimToDirectionHelper(self.drivetrain)
 
     def getDistance(self):
-        """Calculate distance from robot to target"""
-
         pose = self.drivetrain.getPose()
 
-        robot_x = pose.x
-        robot_y = pose.y
+        dx = self.target_x - pose.x
+        dy = self.target_y - pose.y
 
-        dx = self.target_x - robot_x
-        dy = self.target_y - robot_y
-
-        self.distance = math.sqrt(dx**2 + dy**2)
-
-        return self.distance
+        return math.sqrt(dx**2 + dy**2)
 
     def getTargetAngle(self):
-        """Calculate angle robot should face"""
-
         pose = self.drivetrain.getPose()
 
-        robot_x = pose.x
-        robot_y = pose.y
-
-        dx = self.target_x - robot_x
-        dy = self.target_y - robot_y
+        dx = self.target_x - pose.x
+        dy = self.target_y - pose.y
 
         angle = math.degrees(math.atan2(dy, dx))
-
-        reversed_angle = angle + 180 # Back of Robot
-
-        return reversed_angle
-
-    def initialize(self):
-
-        # Create AimToDirection command using calculated angle
-        self.aimCommand = AimToDirection(
-            self.getTargetAngle(),
-            self.drivetrain
-        )
-
-        self.aimCommand.initialize()
+        return angle + 180
 
     def at_Target_Angle(self):
-        return abs(self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle()) < 5
+        return self.aimHelper.atTarget(self.getTargetAngle())
 
     def execute(self):
-        SmartDashboard.putNumber("Distance to Hub", self.getDistance())
-        SmartDashboard.putNumber("Shooter Target Angle", self.getTargetAngle())
-        SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
-        SmartDashboard.putNumber("Distance Angle to Hub", abs(self.drivetrain.getPoseHeading().degrees() - self.getTargetAngle()))
-        self.aimCommand.execute()
-        # TODO: ONLY RUN HOPPER WHEN SHOOTER AT SPEED
+        distance = self.getDistance()
+        target_angle = self.getTargetAngle()
 
+        x = self.getX()
+        y = self.getY()
+        driver_rot = self.getRot()
+
+        # Auto aim OR driver override
+        if abs(driver_rot) > 0.1:
+            rot = driver_rot
+        else:
+            rot = self.aimHelper.getTurnSpeed(target_angle)
+
+        # ✅ Drive (FIXED signature)
+        self.drivetrain.drive(x, y, rot, True, True)
+
+        # ✅ SmartDashboard (UNCHANGED)
+        SmartDashboard.putNumber("Distance to Hub", distance)
+        SmartDashboard.putNumber("Shooter Target Angle", target_angle)
+        SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
+        SmartDashboard.putNumber(
+            "Distance Angle to Hub",
+            abs(self.drivetrain.getPoseHeading().degrees() - target_angle)
+        )
+
+        # Shoot logic
         if self.at_Target_Angle():
-            self.shooter.runCalculatedShooterSpeed(self.getDistance())
+            self.shooter.runCalculatedShooterSpeed(distance)
             self.hopper.hopper_motor_spin_inwards()
 
-
     def end(self, interrupted):
-        self.aimCommand.end(interrupted)
+        self.drivetrain.drive(0, 0, 0, True, True)
         self.shooter.stop()
         self.hopper.stop_rolling_motor()
+
+    def isFinished(self):
+        return False

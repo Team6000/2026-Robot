@@ -56,11 +56,10 @@ class RobotContainer:
         # Creates commands
         #self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
         #self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
-        self.Angle_Shoot = AngleShoot(self.robotDrive, self.hopper, self.shooter)
         self.IntakeCommand = IntakeCommand(self.shooter, self.hopper)
 
-        self.Angle_Shoot.initialize()
-        self.IntakeCommand.initialize()
+        # self.Angle_Shoot.initialize()
+        # self.IntakeCommand.initialize()
 
 
         # Creates the driver's controller
@@ -112,10 +111,10 @@ class RobotContainer:
         # When you let go cancel the command
         aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
 
-        # while I hold b aim to the given direction-
-        bButton = self.driverController.button(XboxController.Button.kB)
-        aim_to_direction = AimToDirection(50.0, self.robotDrive)
-        bButton.whileTrue(aim_to_direction)
+        # # while I hold b aim to the given direction-
+        # bButton = self.driverController.button(XboxController.Button.kB)
+        # aim_to_direction = AimToDirection(50.0, self.robotDrive)
+        # bButton.whileTrue(aim_to_direction)
 
         # When left bumper is clicked drive forward (robot relative) at 0.1 speeds
         lbButton = self.driverController.button(XboxController.Button.kLeftBumper)
@@ -146,6 +145,15 @@ class RobotContainer:
         rbSubButton.whileTrue(self.IntakeCommand)
 
         # Shooting
+        self.Angle_Shoot = AngleShoot(
+            self.robotDrive,
+            self.hopper,
+            self.shooter,
+
+            getX=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftY),
+            getY=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftX),
+            getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
+        )
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
         lbSubButton.whileTrue(self.Angle_Shoot)
         #lbSubButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(10), self.shooter))
