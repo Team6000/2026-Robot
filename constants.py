@@ -227,7 +227,7 @@ class ShooterConstants:
     shooter_index_D = 0.0
     shooter_index_F = 0.0002
     intake_index_velocity = 5000
-    shooting_index_velocity = -5000
+    shooting_index_velocity = -6000
     intake_shooter_velocity = 2000
 
 

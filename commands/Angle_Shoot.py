@@ -2,6 +2,7 @@ import math
 import commands2
 from wpilib import SmartDashboard
 from commands.fancy_driving.aimtodirection_help import AimToDirectionHelper
+from constants import ShooterConstants
 
 
 class AngleShoot(commands2.Command):
@@ -58,28 +59,33 @@ class AngleShoot(commands2.Command):
         y = self.getY()
         driver_rot = self.getRot()
 
-        # Auto aim OR driver override
-        if abs(driver_rot) > 0.1:
-            rot = driver_rot
-        else:
-            rot = self.aimHelper.getTurnSpeed(target_angle)
-
-        # ✅ Drive (FIXED signature)
-        self.drivetrain.drive(x, y, rot, True, True)
-
-        # ✅ SmartDashboard (UNCHANGED)
-        SmartDashboard.putNumber("Distance to Hub", distance)
-        SmartDashboard.putNumber("Shooter Target Angle", target_angle)
-        SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
-        SmartDashboard.putNumber(
-            "Distance Angle to Hub",
-            abs(self.drivetrain.getPoseHeading().degrees() - target_angle)
-        )
+        # # Auto aim OR driver override
+        # if abs(driver_rot) > 0.1:
+        #     rot = driver_rot
+        # else:
+        #     rot = self.aimHelper.getTurnSpeed(target_angle)
+        #
+        # # ✅ Drive (FIXED signature)
+        # self.drivetrain.drive(x, y, rot, True, True)
+        #
+        # # ✅ SmartDashboard (UNCHANGED)
+        # SmartDashboard.putNumber("Distance to Hub", distance)
+        # SmartDashboard.putNumber("Shooter Target Angle", target_angle)
+        # SmartDashboard.putBoolean("At Angle", self.at_Target_Angle())
+        # SmartDashboard.putNumber(
+        #     "Distance Angle to Hub",
+        #     abs(self.drivetrain.getPoseHeading().degrees() - target_angle)
+        # )
 
         # Shoot logic
-        if self.at_Target_Angle():
+        # if self.at_Target_Angle():
+        if True:
             self.shooter.runCalculatedShooterSpeed(distance)
-            self.hopper.hopper_motor_spin_inwards()
+
+            if self.shooter.shooter_encoder.getVelocity() > self.shooter.target_rpm - 1000:
+                self.shooter.indexer_motor.set(ShooterConstants.shooting_index_velocity)
+                #if self.shooter.indexer_encoder.getVelocity() < ShooterConstants.shooting_index_velocity + 1000:
+                self.hopper.hopper_motor_spin_inwards()
 
     def end(self, interrupted):
         self.drivetrain.drive(0, 0, 0, True, True)

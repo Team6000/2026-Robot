@@ -45,7 +45,7 @@ class RobotContainer:
 
         self.Limelight = LimelightCamera("limelight")
 
-        self.limelightLocalizer.addCamera( #TODO
+        self.limelightLocalizer.addCamera(
            self.Limelight,
            cameraPoseOnRobot=Translation3d(x=0.1778, y=-0.2921, z=0.43),
            cameraHeadingOnRobot=Rotation2d.fromDegrees(0.0),
@@ -160,7 +160,6 @@ class RobotContainer:
         #lbSubButton.onFalse(self.Angle_Shoot.end(True))
 
 
-        #TODO: MAKE A COMMAND THAT'S CALLED SHOOT. IT AUTO AIMS TOWARDS THE HUB THEN WHEN ITS THERE SHOOTS. MAKE FULL COMMAND
 
         # aButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=True), self.shooter))
         # bButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=False), self.shooter))

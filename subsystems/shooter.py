@@ -70,6 +70,7 @@ class Shooter(Subsystem):
     def periodic(self) -> None:
         SmartDashboard.putNumber("Shooter Velocity", (self.shooter_encoder.getVelocity()))
         SmartDashboard.putNumber('Target RPM', self.target_rpm)
+        SmartDashboard.putNumber('Indexer RPM', self.indexer_encoder.getVelocity())
 
     def calculateShooterSpeed(self, distance: float):
 
@@ -79,14 +80,17 @@ class Shooter(Subsystem):
 
         # Lookup RPM from table (automatically interpolates between points)
         points = {
-            1.0: 2000,  # if distance is 1m, spin at 2000 rpm
-            2.0: 3000,  # if distance is 2m, spin at 3000 rpm
-            12.0: 6000,  # if distance is 12m, spin at 6000 rpm
+            1.32715: 3800,
+            1.6637: 4050,
+            1.9558: 4300,
+            2.171: 4500,
+            2.41935: 4600,
+            2.6416: 4750,
+            3.12051: 5000
         }
         RECOMMENDED_SHOOTER_RPM_BY_DISTANCE = LookupTable(points)
 
-        # rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
-        rpm = 4000
+        rpm = RECOMMENDED_SHOOTER_RPM_BY_DISTANCE.interpolate(distance)
 
         # Set the target RPM
         self.target_rpm = rpm
@@ -103,7 +107,7 @@ class Shooter(Subsystem):
     def runCalculatedShooterSpeed(self, distance: float):
         self.calculateShooterSpeed(distance)
         self.shooter_pid.setSetpoint(self.target_rpm, SparkLowLevel.ControlType.kVelocity)
-        self.indexer_motor.set(ShooterConstants.shooting_index_velocity)
+        # self.indexer_motor.set(ShooterConstants.shooting_index_velocity)
 
     def intake(self):
         self.indexer_pid.setReference(ShooterConstants.intake_index_velocity, SparkLowLevel.ControlType.kVelocity)
