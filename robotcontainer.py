@@ -59,7 +59,7 @@ class RobotContainer:
         #self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
         #self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
         self.IntakeCommand = IntakeCommand(self.shooter, self.hopper)
-        self.ShootCommand = AutoShoot(self.robotDrive, self.hopper, self.shooter)
+        self.ManShootCommand = AutoShoot(self.robotDrive, self.hopper, self.shooter)
 
         # self.Angle_Shoot.initialize()
         # self.IntakeCommand.initialize()
@@ -83,7 +83,8 @@ class RobotContainer:
 
         # Configure the button bindings and auto chooser
         self.configureButtonBindings()
-        NamedCommands.registerCommand("Shoot", self.ShootCommand)
+        NamedCommands.registerCommand("Shoot", self.ManShootCommand)
+        NamedCommands.registerCommand("Hopper Out", RunCommand(lambda: self.hopper.extend_hopper()))
         self.autoChooser = AutoBuilder.buildAutoChooser()
 
         # Puts the auto chooser on the dashboard
@@ -136,6 +137,7 @@ class RobotContainer:
         # Y: Retract Hopper
         # RB: Intake
         # LB: Shooting
+        # LT: Manual Shooting
 
 
         # Unstuck Balls in Hopper
@@ -176,6 +178,9 @@ class RobotContainer:
         )
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
         lbSubButton.whileTrue(self.Angle_Shoot)
+
+        startButton = self.subsystemController.button(8)
+        startButton.whileTrue(self.ManShootCommand)
 
 
     def disablePIDSubsystems(self) -> None:
