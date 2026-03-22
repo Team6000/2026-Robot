@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.75,
-        "y": 4.0
+        "x": 3.0,
+        "y": 3.75
       },
       "isLocked": false,
       "linkedName": "Starting Location"
@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 3.0,
-        "y": 4.0
+        "y": 0.5
       },
       "prevControl": {
-        "x": 3.25,
-        "y": 4.0
+        "x": 3.0,
+        "y": 0.25
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Starting Location"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
