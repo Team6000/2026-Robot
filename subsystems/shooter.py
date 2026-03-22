@@ -113,6 +113,10 @@ class Shooter(Subsystem):
         self.indexer_pid.setReference(ShooterConstants.intake_index_velocity, SparkLowLevel.ControlType.kVelocity)
         self.shooter_pid.setReference(ShooterConstants.intake_shooter_velocity, SparkLowLevel.ControlType.kVelocity)
 
+    def reverse_intake(self):
+        self.indexer_pid.setReference(-ShooterConstants.intake_index_velocity, SparkLowLevel.ControlType.kVelocity)
+        self.shooter_pid.setReference(-ShooterConstants.intake_shooter_velocity, SparkLowLevel.ControlType.kVelocity)
+
     def stop(self):
         self.target_rpm = 0.0
         self.shooter_motor.stopMotor()

@@ -13,13 +13,14 @@ from subsystems import hopper
 from subsystems.drivesubsystem import DriveSubsystem
 
 from commands.reset_xy import ResetXY, ResetSwerveFront
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, NamedCommands
 from commands.fancy_driving.manual_aimtodirection import AimToDirection
 from commands.fancy_driving.pathplanner_to_pose import PathToPose
 from commands.fancy_driving.pathplanner_to_path import PathToPath
 from commands.swervedrive import SwerveDrive
 from commands.Angle_Shoot import AngleShoot
 from commands.intake_command import IntakeCommand
+from commands.shoot import AutoShoot
 
 from subsystems.limelight_camera import LimelightCamera
 from subsystems.limelight_localizer import LimelightLocalizer
@@ -37,11 +38,12 @@ class RobotContainer:
     def __init__(self, robot) -> None:
         # The robot's subsystems
         self.robotDrive = DriveSubsystem()
-
         self.hopper = hopper.Hopper()
         self.shooter = Shooter()
+
+
         # Limelight:
-        self.limelightLocalizer = LimelightLocalizer(self.robotDrive)
+        self.limelightLocalizer = LimelightLocalizer(self.robotDrive, True)
 
         self.Limelight = LimelightCamera("limelight")
 
@@ -57,6 +59,7 @@ class RobotContainer:
         #self.PathToPose = PathToPose(self.robotDrive, Pose2d(5, 6, Rotation2d(0))) # Drives to the Pose (5,6)
         #self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
         self.IntakeCommand = IntakeCommand(self.shooter, self.hopper)
+        self.ShootCommand = AutoShoot(self.robotDrive, self.hopper, self.shooter)
 
         # self.Angle_Shoot.initialize()
         # self.IntakeCommand.initialize()
@@ -65,9 +68,22 @@ class RobotContainer:
         # Creates the driver's controller
         self.driverController = CommandGenericHID(OIConstants.kDriverControllerPort)
         self.subsystemController = CommandGenericHID(OIConstants.kSubsystemControllerPort)
+        self.Angle_Shoot = AngleShoot(
+            self.robotDrive,
+            self.hopper,
+            self.shooter,
+
+            getX=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftY),
+            getY=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftX),
+            getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
+        )
+
+        lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
+        lbSubButton.whileTrue(self.Angle_Shoot)
 
         # Configure the button bindings and auto chooser
         self.configureButtonBindings()
+        NamedCommands.registerCommand("Shoot", self.ShootCommand)
         self.autoChooser = AutoBuilder.buildAutoChooser()
 
         # Puts the auto chooser on the dashboard
@@ -107,28 +123,30 @@ class RobotContainer:
 
         # # When you hold a: run the PathToPose or PathToPath command depending on what I have
         aButton = self.driverController.button(XboxController.Button.kA)
-        # aButton.onTrue(self.PathToPose)
-        # When you let go cancel the command
-        aButton.onFalse(RunCommand(lambda: CommandScheduler.getInstance().cancelAll()))
-
-        # # while I hold b aim to the given direction-
-        # bButton = self.driverController.button(XboxController.Button.kB)
-        # aim_to_direction = AimToDirection(50.0, self.robotDrive)
-        # bButton.whileTrue(aim_to_direction)
+        # CURRENTLY NOTHING
 
         # When left bumper is clicked drive forward (robot relative) at 0.1 speeds
         lbButton = self.driverController.button(XboxController.Button.kLeftBumper)
         lbButton.whileTrue(RunCommand(lambda: self.robotDrive.ArcadeDrive(0.1,0), self.robotDrive))
 
-
         # Subsystem Controller
+        # A: Unstuck Balls in Hopper
+        # B: Unstuck Balls in Intake
+        # X: Extend Hopper
+        # Y: Retract Hopper
+        # RB: Intake
+        # LB: Shooting
+
+
+        # Unstuck Balls in Hopper
         aSubButton = self.subsystemController.button(XboxController.Button.kA)
         aSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_outwards(), self.hopper))
         aSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
 
+
         bSubButton = self.subsystemController.button(XboxController.Button.kB)
-        bSubButton.whileTrue(RunCommand(lambda: self.hopper.hopper_motor_spin_inwards(), self.hopper))
-        bSubButton.onFalse(InstantCommand(lambda: self.hopper.stop_rolling_motor(), self.hopper))
+        bSubButton.whileTrue(RunCommand(lambda: self.shooter.reverse_intake(), self.shooter))
+        bSubButton.onFalse(InstantCommand(lambda: self.shooter.stop(), self.shooter))
 
 
         xSubButton = self.subsystemController.button(XboxController.Button.kX)
@@ -144,6 +162,8 @@ class RobotContainer:
         rbSubButton = self.subsystemController.button(XboxController.Button.kRightBumper)
         rbSubButton.whileTrue(self.IntakeCommand)
 
+        # TODO: ADD REVERSE INTAKE
+
         # Shooting
         self.Angle_Shoot = AngleShoot(
             self.robotDrive,
@@ -156,13 +176,6 @@ class RobotContainer:
         )
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
         lbSubButton.whileTrue(self.Angle_Shoot)
-        #lbSubButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(10), self.shooter))
-        #lbSubButton.onFalse(self.Angle_Shoot.end(True))
-
-
-
-        # aButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=True), self.shooter))
-        # bButton.whileTrue(RunCommand(lambda: self.shooter.runCalculatedShooterSpeed(5, forward=False), self.shooter))
 
 
     def disablePIDSubsystems(self) -> None:

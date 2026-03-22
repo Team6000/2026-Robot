@@ -6,11 +6,19 @@ from constants import AutoMovementConstants
 
 
 class AimToDirectionConstants:
-    kP = 0.002
-    kUseSqrtControl = AutoMovementConstants.kUseSqrtControl
+    # Increased P so it actually responds
+    kP = 0.02
+
+    # Turn OFF sqrt unless you really need it
+    kUseSqrtControl = False
+
+    # Minimum speed ONLY when far away
     kMinTurnSpeed = 0.03
     kAngleToleranceDegrees = 2.0
     kAngleVelocityToleranceDegreesPerSec = 50
+
+    # Distance where we stop enforcing minimum speed
+    kMinSpeedCutoffDegrees = 5.0
 
 
 class AimToDirectionHelper:
@@ -23,12 +31,7 @@ class AimToDirectionHelper:
 
     def __init__(self, drivetrain, max_speed=1.0):
         self.drivetrain = drivetrain
-
-        # Clamp speed
-        if abs(max_speed) < 1.0:
-            self.speed = abs(max_speed)
-        else:
-            self.speed = 1.0
+        self.speed = min(abs(max_speed), 1.0)
 
     def _wrapAngle(self, degrees: float) -> float:
         """Wrap angle to [-180, 180]"""
@@ -49,25 +52,25 @@ class AimToDirectionHelper:
         rotationRemaining = targetDirection - currentDirection
         degreesRemaining = self._wrapAngle(rotationRemaining.degrees())
 
-        # Proportional control
-        turnSpeed = self.speed
-        proportionalSpeed = AimToDirectionConstants.kP * abs(degreesRemaining)
+        # ✅ HARD STOP when within tolerance
+        if abs(degreesRemaining) < AimToDirectionConstants.kAngleToleranceDegrees:
+            return 0.0
 
+        # ✅ Proportional control
+        turnSpeed = AimToDirectionConstants.kP * abs(degreesRemaining)
+
+        # Optional shaping (usually keep OFF)
         if AimToDirectionConstants.kUseSqrtControl:
-            proportionalSpeed = math.sqrt(0.5 * proportionalSpeed)
+            turnSpeed = math.sqrt(0.5 * turnSpeed)
 
-        if turnSpeed > proportionalSpeed:
-            turnSpeed = proportionalSpeed
+        # ✅ Clamp to max speed
+        turnSpeed = min(turnSpeed, self.speed)
 
-        # Prevent stalling
-        if turnSpeed < AimToDirectionConstants.kMinTurnSpeed:
-            turnSpeed = AimToDirectionConstants.kMinTurnSpeed
+        # ✅ Only enforce min speed when far away
+        if abs(degreesRemaining) > AimToDirectionConstants.kMinSpeedCutoffDegrees:
+            turnSpeed = max(turnSpeed, AimToDirectionConstants.kMinTurnSpeed)
 
-        # Apply direction
-        if degreesRemaining > 0:
-            return +turnSpeed
-        else:
-            return -turnSpeed
+        return turnSpeed if degreesRemaining > 0 else -turnSpeed
 
     def atTarget(self, targetDegrees: float) -> bool:
         """

@@ -1,6 +1,5 @@
 import commands2
 
-# TODO: ADD UNSTUCK FUNCTION REVERSES
 class IntakeCommand(commands2.Command):
     def __init__(self, shooter, hopper):
         super().__init__()

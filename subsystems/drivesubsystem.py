@@ -125,7 +125,7 @@ class DriveSubsystem(Subsystem):
 
         AutoBuilder.configure(
             self.getPose,  # Robot pose supplier
-            self.resetOdometry,  # Method to reset odometry (will be called if your auto has a starting pose)
+            self.resetPathPlannerOdometry,  # Method to reset odometry (will be called if your auto has a starting pose)
             self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
             lambda speeds, feedforwards: self.driveRobotRelative(speeds),
             # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
@@ -228,6 +228,25 @@ class DriveSubsystem(Subsystem):
         )
         # Sets the odometryHeadingOffset to the current rotation minus the gyroscope
         self.odometryHeadingOffset = self.pose_estimator.getEstimatedPosition().rotation() - self.getGyroHeading()
+
+    def resetPathPlannerOdometry(self, pose: Pose2d) -> None:
+        # 🔥 Flip PathPlanner rotation
+        flippedHeading = -pose.rotation().degrees()
+
+        self.gyro.reset()
+        self.gyro.setAngleAdjustment(0)
+        self.gyro.setAngleAdjustment(flippedHeading)
+
+        self.pose_estimator.resetPosition(
+            Rotation2d.fromDegrees(flippedHeading),
+            (
+                self.frontLeft.getPosition(),
+                self.frontRight.getPosition(),
+                self.backLeft.getPosition(),
+                self.backRight.getPosition(),
+            ),
+            Pose2d(pose.translation(), Rotation2d.fromDegrees(flippedHeading)),
+        )
 
 
     def adjustOdometry(self, dTrans: Translation2d, dRot: Rotation2d):
@@ -517,4 +536,5 @@ class DriveSubsystem(Subsystem):
         # Boolean supplier that controls when the path will be mirrored for the red alliance
         # This will flip the path being followed to the red side of the field.
         # THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+        # return DriverStation.getAlliance() == DriverStation.Alliance.kRed
+        return False
