@@ -137,7 +137,7 @@ class RobotContainer:
         # Y: Retract Hopper
         # RB: Intake
         # LB: Shooting
-        # LT: Manual Shooting
+        # PAUSE: Manual Shooting
 
 
         # Unstuck Balls in Hopper
