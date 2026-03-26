@@ -8,6 +8,7 @@ from commands2 import RunCommand, CommandScheduler, InstantCommand
 from commands2.button import CommandGenericHID
 from wpilib import XboxController, SmartDashboard
 
+from commands.hopper_out import ExtendHopper
 from constants import OIConstants
 from subsystems import hopper
 from subsystems.drivesubsystem import DriveSubsystem
@@ -78,13 +79,15 @@ class RobotContainer:
             getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
         )
 
+        self.ExtendHopper = ExtendHopper(self.hopper)
+
         lbSubButton = self.subsystemController.button(XboxController.Button.kLeftBumper)
         lbSubButton.whileTrue(self.Angle_Shoot)
 
         # Configure the button bindings and auto chooser
         self.configureButtonBindings()
         NamedCommands.registerCommand("Shoot", self.ManShootCommand)
-        NamedCommands.registerCommand("Hopper Out", RunCommand(lambda: self.hopper.extend_hopper()))
+        NamedCommands.registerCommand("Hopper Out", self.ExtendHopper)
         self.autoChooser = AutoBuilder.buildAutoChooser()
 
         # Puts the auto chooser on the dashboard
