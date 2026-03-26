@@ -60,11 +60,9 @@ class Hopper(Subsystem):
         self.linear_encoder = self.linear_motor.getEncoder()
 
     def extend_hopper(self):
-        print("Extending hopper")
         self.linear_pid.setReference(HopperConstants.extend_hopper_final_pos, SparkMax.ControlType.kPosition)
 
     def retract_hopper(self):
-        print("Retracting hopper")
         self.linear_pid.setReference(HopperConstants.retract_hopper_final_pos, SparkMax.ControlType.kPosition)
 
     def periodic(self) -> None:

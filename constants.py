@@ -30,7 +30,7 @@ class DriveConstants:
     kRotationalSlewRate = 2.0  # percent per second (1 = 100%)
 
     # Chassis configuration
-    kTrackWidth = units.inchesToMeters(22.5)
+    kTrackWidth = units.inchesToMeters(22.5) # TODO
     # Distance between centers of right and left wheels on robot
     kWheelBase = units.inchesToMeters(22.5)
     # Distance between front and back wheels on robot
@@ -42,7 +42,6 @@ class DriveConstants:
         Translation2d(-kWheelBase / 2, -kTrackWidth / 2),
     ]
     kDriveKinematics = SwerveDrive4Kinematics(*kModulePositions) # Creates the drivetrain Kinematics
-
 
 
     # IDs and Offsets for each Swerve Module
@@ -185,7 +184,7 @@ class ModuleConstants:
     kTurningMotorIdleMode = SparkBase.IdleMode.kBrake
 
     # Rate limit for each motor
-    kDrivingMotorCurrentLimit = 50  # amp
+    kDrivingMotorCurrentLimit = 30  # amp
     kTurningMotorCurrentLimit = 20  # amp # NERIYA HAD 40
 
     # Minimum speed of a module for it to be considered stopped
