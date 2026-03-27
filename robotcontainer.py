@@ -61,6 +61,38 @@ class RobotContainer:
         #self.PathToPath = PathToPath("Path1", self.robotDrive) # Drives to Path1 then follows it
         self.IntakeCommand = IntakeCommand(self.shooter, self.hopper)
         self.ManShootCommand = AutoShoot(self.robotDrive, self.hopper, self.shooter)
+        self.AutonManShootCommand = AutoShoot(self.robotDrive, self.hopper, self.shooter).withTimeout(5)
+        self.RotateToZero = AimToDirection(
+            self.robotDrive,
+
+            getX=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftY),
+            getY=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftX),
+            getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
+
+            targetDegrees=lambda: 0.0,
+        ).withTimeout(1.5)
+
+        self.RotateToNinety = AimToDirection(
+            self.robotDrive,
+
+            getX=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftY),
+            getY=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftX),
+            getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
+
+            targetDegrees=lambda: 90.0,
+        ).withTimeout(1.5)
+
+        self.RotateToTwoSeventy = AimToDirection(
+            self.robotDrive,
+
+            getX=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftY),
+            getY=lambda: -self.driverController.getRawAxis(XboxController.Axis.kLeftX),
+            getRot=lambda: -self.driverController.getRawAxis(XboxController.Axis.kRightX),
+
+            targetDegrees=lambda: 270.0,
+        ).withTimeout(1.5)
+
+        self.AutoIntakeCommand = IntakeCommand(self.shooter, self.hopper)# .withTimeout(10) #TODO
 
         # self.Angle_Shoot.initialize()
         # self.IntakeCommand.initialize()
@@ -86,8 +118,12 @@ class RobotContainer:
 
         # Configure the button bindings and auto chooser
         self.configureButtonBindings()
-        NamedCommands.registerCommand("Shoot", self.ManShootCommand)
+        NamedCommands.registerCommand("Shoot", self.AutonManShootCommand)
         NamedCommands.registerCommand("Hopper Out", self.ExtendHopper)
+        NamedCommands.registerCommand("RotateToZero", self.RotateToZero)
+        NamedCommands.registerCommand("RotateToNinety", self.RotateToNinety)
+        NamedCommands.registerCommand("RotateToTwoSeventy", self.RotateToTwoSeventy)
+        NamedCommands.registerCommand("AutoIntakeCommand", self.AutoIntakeCommand)
         self.autoChooser = AutoBuilder.buildAutoChooser()
 
         # Puts the auto chooser on the dashboard

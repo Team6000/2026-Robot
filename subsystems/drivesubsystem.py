@@ -174,6 +174,11 @@ class DriveSubsystem(Subsystem):
         SmartDashboard.putNumber("bl abs", (self.backLeft.turning_AbsEncoder.get_absolute_position().value*-360))
         SmartDashboard.putNumber("br abs", (self.backRight.turning_AbsEncoder.get_absolute_position().value*-360))
 
+        SmartDashboard.putNumber("fl v", (self.frontLeft.drivingEncoder.getVelocity()))
+        SmartDashboard.putNumber("fr v", (self.frontRight.drivingEncoder.getVelocity()))
+        SmartDashboard.putNumber("bl v", (self.backLeft.drivingEncoder.getVelocity()))
+        SmartDashboard.putNumber("br v", (self.backRight.drivingEncoder.getVelocity()))
+
         self.field.setRobotPose(pose)# Sets the position of the robot on the field to the pose
 
 
