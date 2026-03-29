@@ -65,6 +65,9 @@ class Hopper(Subsystem):
     def retract_hopper(self):
         self.linear_pid.setReference(HopperConstants.retract_hopper_final_pos, SparkMax.ControlType.kPosition)
 
+    def hopper_midway(self):
+        self.linear_pid.setReference(HopperConstants.middle_pos, SparkMax.ControlType.kPosition)
+
     def periodic(self) -> None:
         # Linear Position
         position = self.get_position()

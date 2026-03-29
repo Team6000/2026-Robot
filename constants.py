@@ -246,6 +246,7 @@ class HopperConstants:
     roller_motor_F = 0
     extend_hopper_final_pos = -36.8
     retract_hopper_final_pos = 1
+    middle_pos = -15
     linear_motor_max_speed = 0.15
     linear_motor_min_speed = -0.15
     inwards_spin_velocity = 12000

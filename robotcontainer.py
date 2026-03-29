@@ -221,6 +221,9 @@ class RobotContainer:
         startButton = self.subsystemController.button(8)
         startButton.whileTrue(self.ManShootCommand)
 
+        leftTriggerButton = self.subsystemController.button(XboxController.Button.kLeftStick) #TODO: CHECK
+        leftTriggerButton.whileTrue(RunCommand(lambda: self.hopper.hopper_midway(), self.hopper))
+
 
     def disablePIDSubsystems(self) -> None:
         """Disables all ProfiledPIDSubsystem and PIDSubsystem instances.
